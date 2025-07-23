@@ -1,0 +1,44 @@
+package com.vaccinationcenter.service;
+
+import java.util.Collections;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.vaccinationcenter.exception.ResourceNotFoundException;
+import com.vaccinationcenter.model.Citizen;
+import com.vaccinationcenter.model.ResponseDto;
+import com.vaccinationcenter.model.VaccinationCenter;
+import com.vaccinationcenter.repository.VaccinationCenterRepository;
+
+@Service
+public class VaccinationCenterService {
+
+	private final VaccinationCenterRepository vaccinationCenterRepository;
+
+	private final RestTemplate restTemplate;
+
+	public VaccinationCenterService(VaccinationCenterRepository vaccinationCenterRepository,
+			RestTemplate restTemplate) {
+		this.vaccinationCenterRepository = vaccinationCenterRepository;
+		this.restTemplate = restTemplate;
+	}
+
+	public VaccinationCenter createVaccinationCenter(VaccinationCenter vaccinationCenter) {
+		VaccinationCenter center = vaccinationCenterRepository.save(vaccinationCenter);
+		return center;
+	}
+
+	public ResponseDto getDetailsByVaccinationCenterId(int id) {
+
+		VaccinationCenter vaccinationCenter = vaccinationCenterRepository.findById(id).orElseThrow(
+				() -> new ResourceNotFoundException("Vaccination center details not found with id : " + id));
+
+		List<Citizen> citizen = restTemplate.getForObject("http://localhost:9090/api/citizens/id/" + id, List.class);
+
+		return ResponseDto.builder().citizens(Collections.singletonList(citizen)).vaccinationCenter(vaccinationCenter)
+				.build();
+	}
+
+}

@@ -1,0 +1,37 @@
+package com.citizenservice.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.citizenservice.exception.ResourceNotFoundException;
+import com.citizenservice.model.Citizen;
+import com.citizenservice.repository.CitizenRepository;
+
+@Service
+public class CitizenService {
+
+	public final CitizenRepository citizenRepository;
+
+	public CitizenService(CitizenRepository citizenRepository) {
+		this.citizenRepository = citizenRepository;
+	}
+
+	public Citizen createCitizen(Citizen citizen) {
+
+		Citizen citizenSave = citizenRepository.save(citizen);
+		return citizenSave;
+	}
+
+	public Citizen getCitizenById(int id) {
+		Citizen getCitizen = citizenRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Citizen Not Fount with id : " + id));
+		return getCitizen;
+	}
+
+	public List<Citizen> findByVaccinationCenterId(int id) {
+		List<Citizen> findByVaccinationCenterId = citizenRepository.findByVaccinationCenterId(id);
+		return findByVaccinationCenterId;
+	}
+
+}
